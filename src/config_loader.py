@@ -39,14 +39,15 @@ class YinYangConfig:
         }
         
         self.config['processing'] = {
-            'methods': 'brightness_match, histogram_match, color_balance, edge_enhance',
-            'generate_all_methods': 'true',
+            'mode': 'rotation_preview',
+            'method': 'brightness_match',
+            'rotation_increment': '45',
             'resolution': '400',
             'radius': '1.0'
         }
         
         self.config['output'] = {
-            'output_directory': '../output',
+            'output_directory': '../temp_preview',
             'dpi': '300', 
             'show_images': 'true',
             'filename_prefix': 'yinyang'
@@ -79,22 +80,27 @@ class YinYangConfig:
             'top_img_flip_vertical': self.config.getboolean('transformations', 'top_image_flip_vertical')
         }
     
-    def get_methods(self):
-        """Get processing methods"""
-        methods_str = self.config['processing']['methods']
-        methods = [m.strip() for m in methods_str.split(',')]
-        generate_all = self.config.getboolean('processing', 'generate_all_methods')
-        
-        if not generate_all:
-            methods = [methods[0]]  # Use only first method
-            
-        return methods
+    def get_processing_mode(self):
+        """Get processing mode (methods or rotation_preview)"""
+        return self.config.get('processing', 'mode', fallback='rotation_preview')
+    
+    def get_unification_method(self):
+        """Get single unification method for rotation preview"""
+        return self.config.get('processing', 'method', fallback='brightness_match')
+    
+    def get_rotation_increments(self):
+        """Get rotation increments for preview mode"""
+        increment = int(self.config.get('processing', 'rotation_increment', fallback='45'))
+        return list(range(0, 360, increment))
     
     def get_processing_settings(self):
         """Get processing settings"""
         return {
             'resolution': int(self.config['processing']['resolution']),
-            'radius': float(self.config['processing']['radius'])
+            'radius': float(self.config['processing']['radius']),
+            'mode': self.get_processing_mode(),
+            'method': self.get_unification_method(),
+            'rotations': self.get_rotation_increments()
         }
     
     def get_output_settings(self):
