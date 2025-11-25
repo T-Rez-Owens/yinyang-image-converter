@@ -1,6 +1,10 @@
 # VS Code workspace settings
 .vscode/settings.json
 
+# nonpublic code
+creationRelics/
+images_to_convert/
+
 # Python
 __pycache__/
 *.py[cod]
@@ -52,5 +56,5 @@ Thumbs.db
 
 # Generated images
 default*.png
-output_*.png
+yinyang*.png
 result_*.png
