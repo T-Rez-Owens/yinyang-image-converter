@@ -62,4 +62,4 @@ Thumbs.db
 # Generated images
 default*.png
 yinyang*.png
-result_*.png
+result_*.png*.code-workspace
