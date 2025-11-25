@@ -21,7 +21,7 @@ pip install -r requirements.txt
 ```
 
 ### 2. Add Your Images
-- Drop your **bottom/yin** image in: `src/lower_image/`
+- Drop your **lower/yin** image in: `src/lower_image/`
 - Drop your **top/yang** image in: `src/top_image/`
 
 ### 3. Generate
@@ -59,7 +59,7 @@ top_image_directory = top_image
 ```ini
 [transformations]
 # Rotation in degrees (positive = clockwise)
-lower_image_rotation = 65      # Bottom image (yin)
+lower_image_rotation = 65      # lower image (yin)
 top_image_rotation = 245     # Top image (yang) 
 
 # Flip settings
@@ -119,7 +119,7 @@ yinyang-image-converter/
 6. **Export**: High-quality PNG with method suffix
 
 ### Default Transformations
-- **Bottom Image (Yin)**: 65° clockwise rotation
+- **lower Image (Yin)**: 65° clockwise rotation
 - **Top Image (Yang)**: 245° rotation + horizontal flip
 - Creates perfect complementary opposition
 

@@ -275,14 +275,14 @@ def yin_yang_with_images(config, lower_image_path, top_image_path, unify_method=
     if transforms['low_img_flip_horizontal']:
         low_img_resized = low_img_resized.transpose(Image.FLIP_LEFT_RIGHT)
     if transforms['low_img_flip_vertical']:
-        low_img_resized = low_img_resized.transpose(Image.FLIP_TOP_BOTTOM)
+        low_img_resized = low_img_resized.transpose(Image.FLIP_TOP_lower)
     if transforms['low_img_rotation'] != 0:
         low_img_resized = low_img_resized.rotate(-transforms['low_img_rotation'], expand=True)
     
     if transforms['top_img_flip_horizontal']:
         top_img_resized = top_img_resized.transpose(Image.FLIP_LEFT_RIGHT)
     if transforms['top_img_flip_vertical']:
-        top_img_resized = top_img_resized.transpose(Image.FLIP_TOP_BOTTOM)
+        top_img_resized = top_img_resized.transpose(Image.FLIP_TOP_lower)
     if transforms['top_img_rotation'] != 0:
         top_img_resized = top_img_resized.rotate(-transforms['top_img_rotation'], expand=True)
     
@@ -360,21 +360,21 @@ def main():
     if not (low_img_path and top_image_path):
         # Auto-detect images from lower_image and top_image directories
         image_dirs = config.get_image_directories()
-        bottom_dir = image_dirs['lower_image']
+        lower_dir = image_dirs['lower_image']
         top_dir = image_dirs['top_image']
         
-        bottom_images = find_available_images(bottom_dir)
+        lower_images = find_available_images(lower_dir)
         top_images = find_available_images(top_dir)
         
-        if bottom_images and top_images:
-            low_img_path = bottom_images[0]  # First image from lower_image folder (yin)
+        if lower_images and top_images:
+            low_img_path = lower_images[0]  # First image from lower_image folder (yin)
             top_image_path = top_images[0]     # First image from top_image folder (yang)
-            print(f"Bottom image: {Path(low_img_path).name} from {bottom_dir}")
+            print(f"lower image: {Path(low_img_path).name} from {lower_dir}")
             print(f"Top image: {Path(top_image_path).name} from {top_dir}\")
         else:
             missing_dirs = []
-            if not bottom_images:
-                missing_dirs.append(f"lower_image ({bottom_dir})")
+            if not lower_images:
+                missing_dirs.append(f"lower_image ({lower_dir})")
             if not top_images:
                 missing_dirs.append(f"top_image ({top_dir})")
             

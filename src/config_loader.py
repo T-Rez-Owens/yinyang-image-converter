@@ -62,7 +62,7 @@ class YinYangConfig:
         return None, None
     
     def get_image_directories(self):
-        """Get bottom and top image directories"""
+        """Get lower and top image directories"""
         return {
             'lower_image': self.config['images']['lower_image_directory'],
             'top_image': self.config['images']['top_image_directory']

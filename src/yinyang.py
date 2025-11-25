@@ -316,7 +316,7 @@ def yin_yang_with_images(R=1.0, lower_image_path=None, top_image_path=None, unif
     if low_img_flip_horizontal:
         low_img_resized = low_img_resized.transpose(Image.FLIP_LEFT_RIGHT)
     if low_img_flip_vertical:
-        low_img_resized = low_img_resized.transpose(Image.FLIP_TOP_BOTTOM)
+        low_img_resized = low_img_resized.transpose(Image.FLIP_TOP_lower)
     if low_img_rotation != 0:
         low_img_resized = low_img_resized.rotate(-low_img_rotation, expand=True)  # Negative for clockwise
     
@@ -324,7 +324,7 @@ def yin_yang_with_images(R=1.0, lower_image_path=None, top_image_path=None, unif
     if top_img_flip_horizontal:
         top_img_resized = top_img_resized.transpose(Image.FLIP_LEFT_RIGHT)
     if top_img_flip_vertical:
-        top_img_resized = top_img_resized.transpose(Image.FLIP_TOP_BOTTOM)
+        top_img_resized = top_img_resized.transpose(Image.FLIP_TOP_lower)
     if top_img_rotation != 0:
         top_img_resized = top_img_resized.rotate(-top_img_rotation, expand=True)  # Negative for clockwise
     
