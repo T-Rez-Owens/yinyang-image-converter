@@ -5,6 +5,10 @@
 creationRelics/
 images_to_convert/
 
+# But allow src folder and its contents
+!src/
+!src/**
+
 # Python
 __pycache__/
 *.py[cod]
