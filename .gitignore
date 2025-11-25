@@ -1,9 +1,10 @@
 # VS Code workspace settings
 .vscode/settings.json
 
-# nonpublic code
+# Development folders
 creationRelics/
 images_to_convert/
+.venv/
 
 # But allow src folder and its contents
 !src/
