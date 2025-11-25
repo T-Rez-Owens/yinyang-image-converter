@@ -415,16 +415,49 @@ if __name__ == "__main__":
     # Check if custom images exist
     use_custom = input("Enter 'c' for custom images, or press Enter to use auto-detected images: ").strip().lower()
     
+    # Get transformation settings
+    use_transforms = input("Customize image transformations? (y/N): ").strip().lower()
+    
+    # Default transformation settings (good for yin-yang)
+    img1_rotation = 0
+    img2_rotation = 0
+    img1_flip_h = False
+    img1_flip_v = False
+    img2_flip_h = True  # Default: mirror yang image for classic yin-yang effect
+    img2_flip_v = False
+    
+    if use_transforms == 'y':
+        print("\nImage 1 (Yin - left side) transformations:")
+        try:
+            img1_rotation = int(input("  Rotation degrees (0): ") or "0")
+            img1_flip_h = input("  Flip horizontally? (y/N): ").strip().lower() == 'y'
+            img1_flip_v = input("  Flip vertically? (y/N): ").strip().lower() == 'y'
+        except ValueError:
+            print("  Using default values")
+            
+        print("\nImage 2 (Yang - right side) transformations:")
+        try:
+            img2_rotation = int(input("  Rotation degrees (0): ") or "0")
+            img2_flip_h = input("  Flip horizontally? (Y/n): ").strip().lower() != 'n'  # Default YES
+            img2_flip_v = input("  Flip vertically? (y/N): ").strip().lower() == 'y'
+        except ValueError:
+            print("  Using default values")
+    
     if use_custom == 'c':
         custom_img1 = input("Enter path to first image: ").strip()
         custom_img2 = input("Enter path to second image: ").strip()
         
         if custom_img1 and os.path.exists(custom_img1) and custom_img2 and os.path.exists(custom_img2):
             print(f"Using custom images: {custom_img1} and {custom_img2}")
-            yin_yang_with_images(R=1.0, image1_path=custom_img1, image2_path=custom_img2)
+            yin_yang_with_images(R=1.0, image1_path=custom_img1, image2_path=custom_img2,
+                               img1_rotation=img1_rotation, img2_rotation=img2_rotation,
+                               img1_flip_horizontal=img1_flip_h, img1_flip_vertical=img1_flip_v,
+                               img2_flip_horizontal=img2_flip_h, img2_flip_vertical=img2_flip_v)
         else:
             print("Custom images not found, using auto-detected...")
-            yin_yang_with_images(R=1.0)
+            yin_yang_with_images(R=1.0, img1_rotation=img1_rotation, img2_rotation=img2_rotation,
+                               img1_flip_horizontal=img1_flip_h, img1_flip_vertical=img1_flip_v,
+                               img2_flip_horizontal=img2_flip_h, img2_flip_vertical=img2_flip_v)
     else:
         print("Using auto-detected images...")
         # Try different unification methods
@@ -437,7 +470,10 @@ if __name__ == "__main__":
         else:
             method = 'brightness_match'
         
-        yin_yang_with_images(R=1.0, unify_method=method)
+        yin_yang_with_images(R=1.0, unify_method=method, 
+                           img1_rotation=img1_rotation, img2_rotation=img2_rotation,
+                           img1_flip_horizontal=img1_flip_h, img1_flip_vertical=img1_flip_v,
+                           img2_flip_horizontal=img2_flip_h, img2_flip_vertical=img2_flip_v)
     
     print("\nTip: To use your own images, simply place any .jpg, .png, or other image files")
     print("in this directory and run the script again. The first two images found")
