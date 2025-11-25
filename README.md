@@ -21,8 +21,8 @@ pip install -r requirements.txt
 ```
 
 ### 2. Add Your Images
-- Drop your **bottom/yin** image in: `src/bottomimage/`
-- Drop your **top/yang** image in: `src/topimage/`
+- Drop your **bottom/yin** image in: `src/lower_image/`
+- Drop your **top/yang** image in: `src/top_image/`
 
 ### 3. Generate
 ```bash
@@ -47,26 +47,26 @@ Edit `src/config.ini` to customize:
 ### Image Settings
 ```ini
 [images]
-# Leave empty for auto-detection from bottomimage/topimage folders
-image1_path = 
-image2_path = 
+# Leave empty for auto-detection from lower_image/top_image folders
+lower_image_path = 
+top_image_path = 
 
-bottomimage_directory = bottomimage
-topimage_directory = topimage
+lower_image_directory = lower_image
+top_image_directory = top_image
 ```
 
 ### Transformations
 ```ini
 [transformations]
 # Rotation in degrees (positive = clockwise)
-image1_rotation = 65      # Bottom image (yin)
-image2_rotation = 245     # Top image (yang) 
+lower_image_rotation = 65      # Bottom image (yin)
+top_image_rotation = 245     # Top image (yang) 
 
 # Flip settings
-image1_flip_horizontal = false
-image1_flip_vertical = false
-image2_flip_horizontal = true    # Creates mirror effect
-image2_flip_vertical = false
+lower_image_flip_horizontal = false
+lower_image_flip_vertical = false
+top_image_flip_horizontal = true    # Creates mirror effect
+top_image_flip_vertical = false
 ```
 
 ### Processing Options
@@ -97,8 +97,8 @@ filename_prefix = yinyang
 ```
 yinyang-image-converter/
 ├── src/                    # Source code
-│   ├── bottomimage/       # Your yin images (drag & drop here)
-│   ├── topimage/         # Your yang images (drag & drop here)
+│   ├── lower_image/       # Your yin images (drag & drop here)
+│   ├── top_image/         # Your yang images (drag & drop here)
 │   ├── config.ini        # Configuration file
 │   ├── config_loader.py  # Configuration management
 │   ├── yinyang_config.py # Main script (recommended)
@@ -111,7 +111,7 @@ yinyang-image-converter/
 ## 🎯 How It Works
 
 ### The Yin-Yang Process
-1. **Load Images**: From `bottomimage/` and `topimage/` folders
+1. **Load Images**: From `lower_image/` and `top_image/` folders
 2. **Apply Transformations**: Rotation and flips based on config
 3. **Unify Images**: Balance brightness, colors, or enhance edges
 4. **Generate Topology**: Create precise yin-yang geometry
@@ -142,15 +142,15 @@ Applies edge enhancement filters for artistic, sketch-like effects.
 ### Command Line Mode
 ```bash
 # Use specific images and method
-python yinyang_config.py image1.png image2.png brightness_match
+python yinyang_config.py lower_image.png top_image.png brightness_match
 ```
 
 ### Custom Image Paths
 Edit `config.ini`:
 ```ini
 [images]
-image1_path = /path/to/your/yin/image.png
-image2_path = /path/to/your/yang/image.png
+lower_image_path = /path/to/your/yin/image.png
+top_image_path = /path/to/your/yang/image.png
 ```
 
 ### Single Method Generation

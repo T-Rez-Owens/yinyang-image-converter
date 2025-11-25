@@ -23,19 +23,19 @@ class YinYangConfig:
     def set_defaults(self):
         """Set default configuration values"""
         self.config['images'] = {
-            'image1_path': '',
-            'image2_path': '', 
-            'bottomimage_directory': 'bottomimage',
-            'topimage_directory': 'topimage'
+            'lower_image_path': '',
+            'top_image_path': '', 
+            'lower_image_directory': 'lower_image',
+            'top_image_directory': 'top_image'
         }
         
         self.config['transformations'] = {
-            'image1_rotation': '65',
-            'image2_rotation': '245',
-            'image1_flip_horizontal': 'false',
-            'image1_flip_vertical': 'false', 
-            'image2_flip_horizontal': 'true',
-            'image2_flip_vertical': 'false'
+            'lower_image_rotation': '65',
+            'top_image_rotation': '245',
+            'lower_image_flip_horizontal': 'false',
+            'lower_image_flip_vertical': 'false', 
+            'top_image_flip_horizontal': 'true',
+            'top_image_flip_vertical': 'false'
         }
         
         self.config['processing'] = {
@@ -54,29 +54,29 @@ class YinYangConfig:
     
     def get_image_paths(self):
         """Get image paths from config"""
-        img1 = self.config['images']['image1_path'].strip()
-        img2 = self.config['images']['image2_path'].strip()
+        low_img = self.config['images']['lower_image_path'].strip()
+        top_img = self.config['images']['top_image_path'].strip()
         
-        if img1 and img2:
-            return img1, img2
+        if low_img and top_img:
+            return low_img, top_img
         return None, None
     
     def get_image_directories(self):
         """Get bottom and top image directories"""
         return {
-            'bottomimage': self.config['images']['bottomimage_directory'],
-            'topimage': self.config['images']['topimage_directory']
+            'lower_image': self.config['images']['lower_image_directory'],
+            'top_image': self.config['images']['top_image_directory']
         }
     
     def get_transformations(self):
         """Get transformation settings"""
         return {
-            'img1_rotation': int(self.config['transformations']['image1_rotation']),
-            'img2_rotation': int(self.config['transformations']['image2_rotation']),
-            'img1_flip_horizontal': self.config.getboolean('transformations', 'image1_flip_horizontal'),
-            'img1_flip_vertical': self.config.getboolean('transformations', 'image1_flip_vertical'),
-            'img2_flip_horizontal': self.config.getboolean('transformations', 'image2_flip_horizontal'), 
-            'img2_flip_vertical': self.config.getboolean('transformations', 'image2_flip_vertical')
+            'low_img_rotation': int(self.config['transformations']['lower_image_rotation']),
+            'top_img_rotation': int(self.config['transformations']['top_image_rotation']),
+            'low_img_flip_horizontal': self.config.getboolean('transformations', 'lower_image_flip_horizontal'),
+            'low_img_flip_vertical': self.config.getboolean('transformations', 'lower_image_flip_vertical'),
+            'top_img_flip_horizontal': self.config.getboolean('transformations', 'top_image_flip_horizontal'), 
+            'top_img_flip_vertical': self.config.getboolean('transformations', 'top_image_flip_vertical')
         }
     
     def get_methods(self):

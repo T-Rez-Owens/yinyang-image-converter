@@ -54,20 +54,20 @@ def create_sample_images():
     """Create sample images if no images are found"""
     
     # Create a simple pattern image 1 (checkerboard)
-    img1 = Image.new('RGB', (400, 400), 'white')
-    pixels1 = img1.load()
+    low_img = Image.new('RGB', (400, 400), 'white')
+    pixels1 = low_img.load()
     for i in range(400):
         for j in range(400):
             if (i // 30 + j // 30) % 2:
                 pixels1[i, j] = (30, 60, 150)  # Deep blue
             else:
                 pixels1[i, j] = (220, 220, 255)  # Light blue
-    img1.save('default1.png')
+    low_img.save('default1.png')
     print("Created default1.png (blue pattern)")
     
     # Create a simple pattern image 2 (gradient)
-    img2 = Image.new('RGB', (400, 400), 'white')
-    pixels2 = img2.load()
+    top_img = Image.new('RGB', (400, 400), 'white')
+    pixels2 = top_img.load()
     for i in range(400):
         for j in range(400):
             # Create a radial gradient
@@ -75,7 +75,7 @@ def create_sample_images():
             distance = ((i - center_x)**2 + (j - center_y)**2)**0.5
             color_val = int(255 * (distance / 280)) % 255
             pixels2[i, j] = (255 - color_val, color_val // 2, color_val)
-    img2.save('default2.png')
+    top_img.save('default2.png')
     print("Created default2.png (gradient pattern)")
     
     return ['default1.png', 'default2.png']
@@ -101,43 +101,43 @@ def analyze_image_characteristics(img):
         'is_dark': brightness < 128
     }
 
-def unify_images(img1, img2, method='histogram_match'):
+def unify_images(low_img, top_img, method='histogram_match'):
     """
     Unify two images using techniques from ASCII art programs
     Methods: 'histogram_match', 'color_balance', 'brightness_match', 'edge_enhance'
     """
-    img1_chars = analyze_image_characteristics(img1)
-    img2_chars = analyze_image_characteristics(img2)
+    low_img_chars = analyze_image_characteristics(low_img)
+    top_img_chars = analyze_image_characteristics(top_img)
     
     if method == 'histogram_match':
         # Match histograms for similar tonal distribution
-        return histogram_match_images(img1, img2)
+        return histogram_match_images(low_img, top_img)
     
     elif method == 'color_balance':
         # Balance colors to create harmony
-        return color_balance_images(img1, img2, img1_chars, img2_chars)
+        return color_balance_images(low_img, top_img, low_img_chars, top_img_chars)
     
     elif method == 'brightness_match':
         # Match brightness and contrast for cohesion
-        return brightness_match_images(img1, img2, img1_chars, img2_chars)
+        return brightness_match_images(low_img, top_img, low_img_chars, top_img_chars)
     
     elif method == 'edge_enhance':
         # Enhance edges and create ASCII-like effect
-        return edge_enhance_images(img1, img2)
+        return edge_enhance_images(low_img, top_img)
     
     else:
-        return img1, img2
+        return low_img, top_img
 
-def histogram_match_images(img1, img2):
-    """Match histogram of img2 to img1 for tonal consistency"""
-    img1_array = np.array(img1)
-    img2_array = np.array(img2)
-    result_img2 = np.zeros_like(img2_array)
+def histogram_match_images(low_img, top_img):
+    """Match histogram of top_img to low_img for tonal consistency"""
+    low_img_array = np.array(low_img)
+    top_img_array = np.array(top_img)
+    result_top_img = np.zeros_like(top_img_array)
     
     for channel in range(3):
         # Calculate histograms
-        hist1, bins1 = np.histogram(img1_array[:,:,channel].flatten(), 256, [0,256])
-        hist2, bins2 = np.histogram(img2_array[:,:,channel].flatten(), 256, [0,256])
+        hist1, bins1 = np.histogram(low_img_array[:,:,channel].flatten(), 256, [0,256])
+        hist2, bins2 = np.histogram(top_img_array[:,:,channel].flatten(), 256, [0,256])
         
         # Calculate CDFs
         cdf1 = hist1.cumsum()
@@ -149,38 +149,38 @@ def histogram_match_images(img1, img2):
         
         # Create lookup table
         lut = np.interp(cdf2, cdf1, range(256))
-        result_img2[:,:,channel] = np.interp(img2_array[:,:,channel].flatten(), range(256), lut).reshape(img2_array[:,:,channel].shape)
+        result_top_img[:,:,channel] = np.interp(top_img_array[:,:,channel].flatten(), range(256), lut).reshape(top_img_array[:,:,channel].shape)
     
-    return img1, Image.fromarray(result_img2.astype(np.uint8))
+    return low_img, Image.fromarray(result_top_img.astype(np.uint8))
 
-def color_balance_images(img1, img2, chars1, chars2):
+def color_balance_images(low_img, top_img, chars1, chars2):
     """Balance colors between images for harmony"""
     # Convert to HSV for better color manipulation
-    img1_hsv = img1.convert('HSV')
-    img2_hsv = img2.convert('HSV')
+    low_img_hsv = low_img.convert('HSV')
+    top_img_hsv = top_img.convert('HSV')
     
-    img1_array = np.array(img1_hsv)
-    img2_array = np.array(img2_hsv)
+    low_img_array = np.array(low_img_hsv)
+    top_img_array = np.array(top_img_hsv)
     
     # Adjust saturation to create harmony
-    target_sat = (np.mean(img1_array[:,:,1]) + np.mean(img2_array[:,:,1])) / 2
+    target_sat = (np.mean(low_img_array[:,:,1]) + np.mean(top_img_array[:,:,1])) / 2
     
-    # Adjust img2's saturation toward the average
-    img2_array[:,:,1] = (img2_array[:,:,1] * 0.7 + target_sat * 0.3).astype(np.uint8)
+    # Adjust top_img's saturation toward the average
+    top_img_array[:,:,1] = (top_img_array[:,:,1] * 0.7 + target_sat * 0.3).astype(np.uint8)
     
     # Convert back to RGB
-    result_img2 = Image.fromarray(img2_array, 'HSV').convert('RGB')
+    result_top_img = Image.fromarray(top_img_array, 'HSV').convert('RGB')
     
-    return img1, result_img2
+    return low_img, result_top_img
 
-def brightness_match_images(img1, img2, chars1, chars2):
+def brightness_match_images(low_img, top_img, chars1, chars2):
     """Match brightness and contrast for cohesion"""
     # Target brightness - average of both images
     target_brightness = (chars1['brightness'] + chars2['brightness']) / 2
     
     # Adjust brightness
-    enhancer1 = ImageEnhance.Brightness(img1)
-    enhancer2 = ImageEnhance.Brightness(img2)
+    enhancer1 = ImageEnhance.Brightness(low_img)
+    enhancer2 = ImageEnhance.Brightness(top_img)
     
     brightness_factor1 = target_brightness / chars1['brightness']
     brightness_factor2 = target_brightness / chars2['brightness']
@@ -189,12 +189,12 @@ def brightness_match_images(img1, img2, chars1, chars2):
     brightness_factor1 = np.clip(brightness_factor1, 0.5, 2.0)
     brightness_factor2 = np.clip(brightness_factor2, 0.5, 2.0)
     
-    result_img1 = enhancer1.enhance(brightness_factor1)
-    result_img2 = enhancer2.enhance(brightness_factor2)
+    result_low_img = enhancer1.enhance(brightness_factor1)
+    result_top_img = enhancer2.enhance(brightness_factor2)
     
     # Also match contrast
-    contrast_enhancer1 = ImageEnhance.Contrast(result_img1)
-    contrast_enhancer2 = ImageEnhance.Contrast(result_img2)
+    contrast_enhancer1 = ImageEnhance.Contrast(result_low_img)
+    contrast_enhancer2 = ImageEnhance.Contrast(result_top_img)
     
     target_contrast = (chars1['contrast'] + chars2['contrast']) / 2
     contrast_factor1 = target_contrast / chars1['contrast'] if chars1['contrast'] > 0 else 1.0
@@ -203,78 +203,78 @@ def brightness_match_images(img1, img2, chars1, chars2):
     contrast_factor1 = np.clip(contrast_factor1, 0.5, 2.0)
     contrast_factor2 = np.clip(contrast_factor2, 0.5, 2.0)
     
-    result_img1 = contrast_enhancer1.enhance(contrast_factor1)
-    result_img2 = contrast_enhancer2.enhance(contrast_factor2)
+    result_low_img = contrast_enhancer1.enhance(contrast_factor1)
+    result_top_img = contrast_enhancer2.enhance(contrast_factor2)
     
-    return result_img1, result_img2
+    return result_low_img, result_top_img
 
-def edge_enhance_images(img1, img2):
+def edge_enhance_images(low_img, top_img):
     """Enhance edges to create ASCII-art-like effect"""
     # Apply edge enhancement filter
     edge_filter = ImageFilter.EDGE_ENHANCE_MORE
     
-    result_img1 = img1.filter(edge_filter)
-    result_img2 = img2.filter(edge_filter)
+    result_low_img = low_img.filter(edge_filter)
+    result_top_img = top_img.filter(edge_filter)
     
     # Slightly reduce saturation for ASCII-like feel
-    sat_enhancer1 = ImageEnhance.Color(result_img1)
-    sat_enhancer2 = ImageEnhance.Color(result_img2)
+    sat_enhancer1 = ImageEnhance.Color(result_low_img)
+    sat_enhancer2 = ImageEnhance.Color(result_top_img)
     
-    result_img1 = sat_enhancer1.enhance(0.8)
-    result_img2 = sat_enhancer2.enhance(0.8)
+    result_low_img = sat_enhancer1.enhance(0.8)
+    result_top_img = sat_enhancer2.enhance(0.8)
     
-    return result_img1, result_img2
+    return result_low_img, result_top_img
 
-def yin_yang_with_images(R=1.0, image1_path=None, image2_path=None, unify_method='brightness_match', 
-                        img1_rotation=50, img2_rotation=230, 
-                        img1_flip_horizontal=False, img1_flip_vertical=False,
-                        img2_flip_horizontal=True, img2_flip_vertical=False):
+def yin_yang_with_images(R=1.0, lower_image_path=None, top_image_path=None, unify_method='brightness_match', 
+                        low_img_rotation=50, top_img_rotation=230, 
+                        low_img_flip_horizontal=False, low_img_flip_vertical=False,
+                        top_img_flip_horizontal=True, top_img_flip_vertical=False):
     """
     Create a yin-yang symbol using two different images as fill patterns.
     
     Parameters:
     R: Radius of the yin-yang
-    image1_path: Path to first image (for yin half - left side)
-    image2_path: Path to second image (for yang half - right side)
+    lower_image_path: Path to first image (for yin half - left side)
+    top_image_path: Path to second image (for yang half - right side)
     unify_method: Method to unify images ('histogram_match', 'color_balance', 'brightness_match', 'edge_enhance')
-    img1_rotation: Degrees to rotate image1 (default: 110 - base 20° + 90° adjustment)
-    img2_rotation: Degrees to rotate image2 (default: 245 - base 200° + 45° adjustment + horizontal flip) 
-    img1_flip_horizontal: Flip image1 horizontally (default: False)
-    img1_flip_vertical: Flip image1 vertically (default: False)
-    img2_flip_horizontal: Flip image2 horizontally (default: True - creates mirror effect for yin-yang)
-    img2_flip_vertical: Flip image2 vertically (default: False)
+    low_img_rotation: Degrees to rotate lower_image (default: 110 - base 20° + 90° adjustment)
+    top_img_rotation: Degrees to rotate top image (default: 245 - base 200° + 45° adjustment + horizontal flip) 
+    low_img_flip_horizontal: Flip lower_image horizontally (default: False)
+    low_img_flip_vertical: Flip lower_image vertically (default: False)
+    top_img_flip_horizontal: Flip top image horizontally (default: True - creates mirror effect for yin-yang)
+    top_img_flip_vertical: Flip top image vertically (default: False)
     """
     
     # Auto-find images if not specified
-    if image1_path is None or image2_path is None:
+    if lower_image_path is None or top_image_path is None:
         available_images = find_available_images()
         if len(available_images) >= 2:
-            image1_path = available_images[0]
-            image2_path = available_images[1]
-            print(f"Using found images: {image1_path} and {image2_path}")
+            lower_image_path = available_images[0]
+            top_image_path = available_images[1]
+            print(f"Using found images: {lower_image_path} and {top_image_path}")
         else:
             print("Not enough images found, creating sample images...")
             sample_images = create_sample_images()
-            image1_path = sample_images[0]
-            image2_path = sample_images[1]
+            lower_image_path = sample_images[0]
+            top_image_path = sample_images[1]
     
     fig, ax = plt.subplots(figsize=(10, 10))
     
     # Load and prepare images
     try:
-        img1 = Image.open(image1_path).convert('RGB')
-        img2 = Image.open(image2_path).convert('RGB')
-        print(f"Loaded images: {image1_path} and {image2_path}")
+        low_img = Image.open(lower_image_path).convert('RGB')
+        top_img = Image.open(top_image_path).convert('RGB')
+        print(f"Loaded images: {lower_image_path} and {top_image_path}")
         
         # Analyze images before unification
-        chars1 = analyze_image_characteristics(img1)
-        chars2 = analyze_image_characteristics(img2)
+        chars1 = analyze_image_characteristics(low_img)
+        chars2 = analyze_image_characteristics(top_img)
         print(f"Image 1 - Brightness: {chars1['brightness']:.1f}, Contrast: {chars1['contrast']:.1f}")
         print(f"Image 2 - Brightness: {chars2['brightness']:.1f}, Contrast: {chars2['contrast']:.1f}")
         
         # Unify images using ASCII art techniques
         print(f"Applying unification method: {unify_method}")
-        img1, img2 = unify_images(img1, img2, unify_method)
+        low_img, top_img = unify_images(low_img, top_img, unify_method)
         
     except FileNotFoundError as e:
         print(f"Error loading images: {e}")
@@ -309,31 +309,31 @@ def yin_yang_with_images(R=1.0, image1_path=None, image2_path=None, unify_method
     result_img = np.zeros((400, 400, 3), dtype=np.uint8)
     
     # Resize input images to match our grid
-    img1_resized = img1.resize((400, 400))
-    img2_resized = img2.resize((400, 400))
+    low_img_resized = low_img.resize((400, 400))
+    top_img_resized = top_img.resize((400, 400))
     
-    # Apply customizable transformations to image1 (yin)
-    if img1_flip_horizontal:
-        img1_resized = img1_resized.transpose(Image.FLIP_LEFT_RIGHT)
-    if img1_flip_vertical:
-        img1_resized = img1_resized.transpose(Image.FLIP_TOP_BOTTOM)
-    if img1_rotation != 0:
-        img1_resized = img1_resized.rotate(-img1_rotation, expand=True)  # Negative for clockwise
+    # Apply customizable transformations to lower_image (yin)
+    if low_img_flip_horizontal:
+        low_img_resized = low_img_resized.transpose(Image.FLIP_LEFT_RIGHT)
+    if low_img_flip_vertical:
+        low_img_resized = low_img_resized.transpose(Image.FLIP_TOP_BOTTOM)
+    if low_img_rotation != 0:
+        low_img_resized = low_img_resized.rotate(-low_img_rotation, expand=True)  # Negative for clockwise
     
-    # Apply customizable transformations to image2 (yang)
-    if img2_flip_horizontal:
-        img2_resized = img2_resized.transpose(Image.FLIP_LEFT_RIGHT)
-    if img2_flip_vertical:
-        img2_resized = img2_resized.transpose(Image.FLIP_TOP_BOTTOM)
-    if img2_rotation != 0:
-        img2_resized = img2_resized.rotate(-img2_rotation, expand=True)  # Negative for clockwise
+    # Apply customizable transformations to top image (yang)
+    if top_img_flip_horizontal:
+        top_img_resized = top_img_resized.transpose(Image.FLIP_LEFT_RIGHT)
+    if top_img_flip_vertical:
+        top_img_resized = top_img_resized.transpose(Image.FLIP_TOP_BOTTOM)
+    if top_img_rotation != 0:
+        top_img_resized = top_img_resized.rotate(-top_img_rotation, expand=True)  # Negative for clockwise
     
     # Resize back to 400x400 after rotation (in case expand=True changed size)
-    img1_resized = img1_resized.resize((400, 400))
-    img2_resized = img2_resized.resize((400, 400))
+    low_img_resized = low_img_resized.resize((400, 400))
+    top_img_resized = top_img_resized.resize((400, 400))
     
-    img1_array = np.array(img1_resized)
-    img2_array = np.array(img2_resized)
+    low_img_array = np.array(low_img_resized)
+    top_img_array = np.array(top_img_resized)
     
     # Fill regions with appropriate images
     for i in range(400):
@@ -342,23 +342,23 @@ def yin_yang_with_images(R=1.0, image1_path=None, image2_path=None, unify_method
                 # Outside the main circle - white background
                 result_img[i, j] = [255, 255, 255]
             elif upper_eye[i, j]:
-                # Upper eye - use image2 (opposite of the region it's in)
-                result_img[i, j] = img2_array[i, j]
+                # Upper eye - use top image (opposite of the region it's in)
+                result_img[i, j] = top_img_array[i, j]
             elif lower_eye[i, j]:
-                # Lower eye - use image1 (opposite of the region it's in)
-                result_img[i, j] = img1_array[i, j]
+                # Lower eye - use lower_image (opposite of the region it's in)
+                result_img[i, j] = low_img_array[i, j]
             elif left_half[i, j] and not upper_circle[i, j]:
-                # Left half minus the upper circle - use image1
-                result_img[i, j] = img1_array[i, j]
+                # Left half minus the upper circle - use lower_image
+                result_img[i, j] = low_img_array[i, j]
             elif not left_half[i, j] and not lower_circle[i, j]:
-                # Right half minus the lower circle - use image2
-                result_img[i, j] = img2_array[i, j]
+                # Right half minus the lower circle - use top image
+                result_img[i, j] = top_img_array[i, j]
             elif upper_circle[i, j]:
-                # Upper circle - use image2
-                result_img[i, j] = img2_array[i, j]
+                # Upper circle - use top image
+                result_img[i, j] = top_img_array[i, j]
             elif lower_circle[i, j]:
-                # Lower circle - use image1
-                result_img[i, j] = img1_array[i, j]
+                # Lower circle - use lower_image
+                result_img[i, j] = low_img_array[i, j]
             else:
                 # Fallback - white
                 result_img[i, j] = [255, 255, 255]
@@ -435,7 +435,7 @@ def download_sample_images():
         if not os.path.exists('nature.jpg'):
             print("You can add your own images to the same directory as this script.")
             print("Supported formats: .png, .jpg, .jpeg, .bmp, .gif")
-            print("Name them 'image1.png' and 'image2.png' or specify custom paths.")
+            print("Name them 'lower_image.png' and 'top_image.png' or specify custom paths.")
     except Exception as e:
         print(f"Note: {e}")
 
@@ -449,12 +449,12 @@ if __name__ == "__main__":
     # Check for command line arguments
     if len(sys.argv) > 1:
         # Command line mode - use arguments
-        image1_path = sys.argv[1] if len(sys.argv) > 1 else None
-        image2_path = sys.argv[2] if len(sys.argv) > 2 else None
+        lower_image_path = sys.argv[1] if len(sys.argv) > 1 else None
+        top_image_path = sys.argv[2] if len(sys.argv) > 2 else None
         method = sys.argv[3] if len(sys.argv) > 3 else 'brightness_match'
         
-        print(f"Using command line args: {image1_path}, {image2_path}, {method}")
-        yin_yang_with_images(R=1.0, image1_path=image1_path, image2_path=image2_path, unify_method=method)
+        print(f"Using command line args: {lower_image_path}, {top_image_path}, {method}")
+        yin_yang_with_images(R=1.0, lower_image_path=lower_image_path, top_image_path=top_image_path, unify_method=method)
     else:
         # Auto mode - use defaults with first two available images and run all methods
         available_images = find_available_images()
@@ -465,7 +465,7 @@ if __name__ == "__main__":
             methods = ['brightness_match', 'histogram_match', 'color_balance', 'edge_enhance']
             for method in methods:
                 print(f"\nGenerating with {method}...")
-                yin_yang_with_images(R=1.0, image1_path=available_images[0], image2_path=available_images[1], unify_method=method)
+                yin_yang_with_images(R=1.0, lower_image_path=available_images[0], top_image_path=available_images[1], unify_method=method)
         else:
             print("Not enough images found. Creating sample images...")
             sample_images = create_sample_images()
@@ -473,11 +473,11 @@ if __name__ == "__main__":
             methods = ['brightness_match', 'histogram_match', 'color_balance', 'edge_enhance']
             for method in methods:
                 print(f"\nGenerating with {method}...")
-                yin_yang_with_images(R=1.0, image1_path=sample_images[0], image2_path=sample_images[1], unify_method=method)
+                yin_yang_with_images(R=1.0, lower_image_path=sample_images[0], top_image_path=sample_images[1], unify_method=method)
     
     print("\nUsage:")
     print("  Default mode: python yinyang.py (generates all 4 methods automatically)")
-    print("  Custom mode:  python yinyang.py image1.png image2.png [method]")
+    print("  Custom mode:  python yinyang.py lower_image.png top_image.png [method]")
     print("  Methods: brightness_match, histogram_match, color_balance, edge_enhance")
     print("  Output files: yinyang1_brightness_match.png, yinyang1_histogram_match.png, etc.")
     
